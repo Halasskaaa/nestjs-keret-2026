@@ -1,6 +1,8 @@
 import { Controller, Get, Query, Render } from '@nestjs/common';
 import { AppService } from './app.service.js';
 import { Expense } from './expense.js';
+import { min } from 'rxjs';
+import { title } from 'process';
  
 @Controller()
 export class AppController {
@@ -104,5 +106,22 @@ export class AppController {
         expenses: results,
         searchTerm: name ?? ''
       }
-  }
+    }
+
+    @Get('expensive')
+    @Render('expensive')
+    getExpensive(@Query('amount') amount?: string) {
+      const minAmount = Number(amount);
+
+      const results = this.expenses.filter(
+        expense => expense.amount > minAmount
+      );
+
+      return {
+        title: 'Drága kiadások',
+        expenses: results,
+        amount: amount ?? ''
+      }
+    }
+
 }
