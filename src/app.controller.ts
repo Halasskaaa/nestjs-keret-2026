@@ -1,4 +1,4 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { Controller, Get, Query, Render } from '@nestjs/common';
 import { AppService } from './app.service.js';
 import { Expense } from './expense.js';
  
@@ -88,5 +88,21 @@ export class AppController {
       title: 'Top 3 kiadás',
       expenses : top3
     }
+  }
+
+    @Get('search')
+    @Render('search')
+    search(@Query('name') name?: string){
+      const searchTerm = name?.toLowerCase() ?? '';
+
+      const results = this.expenses.filter(expense =>
+        expense.name.toLowerCase().includes(searchTerm)
+      );
+
+      return {
+        title: 'Kiadás keresése',
+        expenses: results,
+        searchTerm: name ?? ''
+      }
   }
 }

@@ -17,9 +17,18 @@
     <a href="/expensive">expensive</a>
     <a href="/stat">Statisztikák</a>
 
-    <h2>Költések</h2>
+    <h2>Keresés</h2>
 
-    <table>
+    <form action="/search" method="get">
+        <label for="name">Keresés név alapján:</label>
+        <input type="text" id="name" name="name" value="<%= searchTerm %>">
+        <button type="submit">Keresés</button>
+    </form>
+
+    <% if(expenses.length === 0) { %>
+        <p>Nincs találat</p>
+        <% } else { %>
+        <table>
         <thead>
             <tr>
                 <th>Megnevezés</th>
@@ -37,5 +46,7 @@
             <% }) %>
         </tbody>
     </table>
+    <% } %>
+    
 </body>
 </html>
