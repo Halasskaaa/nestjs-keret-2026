@@ -17,36 +17,34 @@
     <a href="/expensive">Expensive</a>
     <a href="/stats">Statisztikák</a>
 
-    <h2>Drága kiadások</h2>
+    <h2>Statisztikák</h2>
 
-    <form action="/expensive" method="get">
-        <label for="amount">Összeg</label>
-        <input type="number" id="amount" name="amount" value="<%= amount %>">
-        <button type="submit">Keresés</button>
-    </form>
+    <p>Kiadások száma: <strong><%= count %></strong></p>
+    <p>Összes kiadások összege: <strong><%= total %> Ft</strong></p>
+    <p>Átlagos kiadás: <strong><%= average.toFixed(2) %> Ft</strong></p>
 
-    <% if(expenses.length === 0) { %>
-        <p>Nincs találat</p>
-        <% } else { %>
-        <table>
+    <h2>Statisztikák kategóriánként</h2>
+    
+    <table>
         <thead>
             <tr>
-                <th>Megnevezés</th>
-                <th>Összeg</th>
                 <th>Kategória</th>
+                <th>Darabszám</th>
+                <th>Összeg</th>
+                <th>Átlag</th>
             </tr>
         </thead>
         <tbody>
-            <% expenses.forEach(expense => { %>
-                <tr class="<%= expense.category %>">
-                    <td><%= expense.name %></td>
-                    <td><%= expense.amount %> Ft</td>
-                    <td><%= expense.category %></td>
+            <% categoryStats.forEach(stats => { %>
+                <tr class="<%= stats.category %>">
+                    <td><%= stats.category %></td>
+                    <td><%= stats.count %></td>
+                    <td><%= stats.total %> Ft</td>
+                    <td><%= stats.average.toFixed(2) %> Ft</td>
                 </tr>
             <% }) %>
         </tbody>
     </table>
-    <% } %>
     
 </body>
 </html>

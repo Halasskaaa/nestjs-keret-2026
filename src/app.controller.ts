@@ -1,70 +1,18 @@
 import { Controller, Get, Query, Render } from '@nestjs/common';
 import { AppService } from './app.service.js';
-import { Expense } from './expense.js';
 import { min } from 'rxjs';
 import { title } from 'process';
+
  
 @Controller()
 export class AppController {
-   expenses: Expense[] = [
-      {
-        name: 'Élelmiszer',
-        amount: 12500,
-        category: 'food',
-      },
-      {
-        name: 'Villanyszámla',
-        amount: 18500,
-        category: 'utilities',
-      },
-      {
-        name: 'Netflix',
-        amount: 3990,
-        category: 'entertainment',
-      },
-      {
-        name: 'Buszjegy',
-        amount: 2500,
-        category: 'misc',
-      },
-      {
-        name: 'Ebéd',
-        amount: 4200,
-        category: 'food',
-      },
-      {
-        name: 'Internet',
-        amount: 7500,
-        category: 'utilities',
-      },
-      {
-        name: 'Mozi',
-        amount: 4500,
-        category: 'entertainment',
-      },
-      {
-        name: 'Tisztítószerek',
-        amount: 6300,
-        category: 'misc',
-      },
-      {
-        name: 'Bevásárlás',
-        amount: 15600,
-        category: 'food',
-      },
-      {
-        name: 'Vízszámla',
-        amount: 5200,
-        category: 'utilities',
-      },
-    ];
- 
+   
   constructor(private readonly appService: AppService) {}
  
   @Get()
   @Render('index')
   getHome() {
-    const total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const total = this.appService.getExpenses().reduce((sum, expense) => sum + expense.amount, 0);
     return {
       title: 'Összes kiadás összege', total
     };
@@ -75,14 +23,14 @@ export class AppController {
   getAll(){
     return{
       title: 'Összes kiadás',
-      expenses: this.expenses
+      expenses: this.appService.getExpenses()
     };
   }
  
   @Get('top3')
   @Render('all')
   getTop3(){
-    const top3 = [...this.expenses]
+    const top3 = [...this.appService.getExpenses()]
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 3);
  
@@ -97,7 +45,7 @@ export class AppController {
     search(@Query('name') name?: string){
       const searchTerm = name?.toLowerCase() ?? '';
 
-      const results = this.expenses.filter(expense =>
+      const results = this.appService.getExpenses().filter(expense =>
         expense.name.toLowerCase().includes(searchTerm)
       );
 
@@ -113,7 +61,7 @@ export class AppController {
     getExpensive(@Query('amount') amount?: string) {
       const minAmount = Number(amount);
 
-      const results = this.expenses.filter(
+      const results = this.appService.getExpenses().filter(
         expense => expense.amount > minAmount
       );
 
@@ -124,4 +72,45 @@ export class AppController {
       }
     }
 
+    @Get('stats')
+    @Render('stats')
+    getStats() {
+      const count = this.appService.getExpenses().length;
+
+      const total = this.appService.getExpenses().reduce((sum, expense) => sum + expense.amount, 0);
+      
+      const average = total / count;
+
+      const categories = [
+        'food',
+        'utilities',
+        'entertainment',
+        'misc'
+      ] as const;
+    
+      const categoryStats = categories.map(category => {
+        const categoryExpenses = this.appService.getExpenses().filter(expense => {
+          return expense.category === category;
+        })
+        const categoryCount = categoryExpenses.length;
+
+        const categoryTotal = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+          
+        const categoryAverage = categoryCount > 0 ? categoryTotal / categoryCount : 0;
+
+        return {
+          category,
+          count: categoryCount,
+          total: categoryTotal,
+          average: categoryAverage
+        }
+    })
+    return {
+      title: 'Statisztikák',
+      count,
+      total,
+      average,
+      categoryStats
+    }
+  }
 }
